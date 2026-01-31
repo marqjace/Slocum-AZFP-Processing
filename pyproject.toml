@@ -4,4 +4,12 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "cmocean>=4.0.3",
+    "echopype>=0.8.4",
+    "h5netcdf>=1.8.1",
+    "matplotlib>=3.9.4",
+    "numpy>=2.0.2",
+    "pandas>=2.3.3",
+    "xarray>=2024.7.0",
+]
