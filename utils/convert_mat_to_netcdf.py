@@ -48,10 +48,6 @@ def convert_mat_to_netcdf(mat_file_path):
     ds_glider.to_netcdf(os.path.join(directory, nc_name), format='NETCDF4')
     # print(f"Saved NetCDF file: {os.path.join(directory, nc_name)}")
 
-# # 2023 deployment
-# mat_file_path = r"C:\Users\marqjace\azfp\2024_deployment\processing\WA_202305241820-deployment_osu592_pass3.mat"
-
-# # 2024 deployment
-# mat_file_path = r"C:\Users\marqjace\azfp\2024_deployment\processing\WA_202405211549-deployment_osu592_pass3.mat"
-
-# convert_mat_to_netcdf(mat_file_path)
+if __name__ == "__main__":
+    import sys
+    convert_mat_to_netcdf(sys.argv[1])

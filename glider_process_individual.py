@@ -1,23 +1,18 @@
-# glider_process_individual.py
-
-# Created by Jace Marquardt
-# Last updated: 2025-08-27
-
-import echopype as ep
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-import xarray as xr
 import pandas as pd
-from convert_mat_to_netcdf import convert_mat_to_netcdf
+import xarray as xr
+import echopype as ep
 from pathlib import Path
+# import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from convert_raw import convert_raw
+from utils.convert_raw import convert_raw
+from utils.convert_mat_to_netcdf import convert_mat_to_netcdf
 
 import warnings
 warnings.filterwarnings('ignore')
 
-def glider_process_individual(data_directory, xml_file, glider_data):
+def main():
     """
     This function takes the converted and calibrated echogram data from the glider AZFP, processes it, and generates echograms.
     It also saves the echograms as PNG files in the specified figures directory within '/processed'.
@@ -29,6 +24,12 @@ def glider_process_individual(data_directory, xml_file, glider_data):
     
     :return: Saved echograms as PNG files in the figures directory
     """
+
+    glider_data = r"C:\Users\marqjace\azfp\2023_deployment\processing\WA_202305241820-deployment_osu592_pass3.mat"
+    raw_data_directory = r"C:\Users\marqjace\azfp\2023_deployment\processing\to_process"
+    xml_file = 'tweaked.xml'
+
+
     ############################ Glider Data Processing ############################
 
     # Convert the .mat glider data file to a netCDF file
@@ -343,13 +344,5 @@ def glider_process_individual(data_directory, xml_file, glider_data):
         profiles_ds.to_netcdf(os.path.join(processed_directory, f"{file}_profiles.nc"))
         profiles_ds.close()
 
-
-# glider_data = r"C:\Users\marqjace\azfp\2023_deployment\processing\WA_202305241820-deployment_osu592_pass3.mat"
-# raw_data_directory = r"C:\Users\marqjace\azfp\2023_deployment\processing\to_process"
-xml_file = 'tweaked.xml'
-# xml_file = 'tweaked2.xml'
-
-glider_data = r"C:\Users\marqjace\azfp\2023_deployment\processing\WA_202305241820-deployment_osu592_pass3.mat"
-raw_data_directory = r"C:\Users\marqjace\azfp\2023_deployment\processing\to_process"
-
-glider_process_individual(raw_data_directory, xml_file, glider_data)
+if __name__ == "__main__":
+    main()
