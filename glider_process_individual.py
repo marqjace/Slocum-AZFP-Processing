@@ -221,39 +221,39 @@ def main():
             climb_mask = depth_derivative < 0
             sv = sv.where(~climb_mask)
 
-            # ---------------- Uncomment to Plot Individual Dive Echograms ----------------
-            echo_range = ds_sv_clean["echo_range"].sel(channel=channel)
-            C = sv.values.T  # shape (M, N)
-            Y = echo_range.transpose("range_sample", "ping_time").values  # (M, N)
-            X = np.broadcast_to(sv['ping_time'].values.reshape(1, -1), C.shape)  # (M, N)
+            # # ---------------- Uncomment to Plot Individual Dive Echograms ----------------
+            # echo_range = ds_sv_clean["echo_range"].sel(channel=channel)
+            # C = sv.values.T  # shape (M, N)
+            # Y = echo_range.transpose("range_sample", "ping_time").values  # (M, N)
+            # X = np.broadcast_to(sv['ping_time'].values.reshape(1, -1), C.shape)  # (M, N)
 
-            fig, ax = plt.subplots(figsize=(12, 6))
+            # fig, ax = plt.subplots(figsize=(12, 6))
 
-            pcolormesh = ax.pcolormesh(
-                X,
-                Y,
-                C,
-                shading='auto',
-                vmin=-100,
-                vmax=-60,
-                cmap='jet',
-            )
+            # pcolormesh = ax.pcolormesh(
+            #     X,
+            #     Y,
+            #     C,
+            #     shading='auto',
+            #     vmin=-100,
+            #     vmax=-60,
+            #     cmap='jet',
+            # )
 
-            ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %H:%M'))
+            # ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+            # ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %H:%M'))
 
-            # Rotate labels for readability
-            fig.autofmt_xdate(rotation=30, ha='right')
+            # # Rotate labels for readability
+            # fig.autofmt_xdate(rotation=30, ha='right')
 
-            # ax.invert_yaxis()
-            ax.set_ylim(Y.max(), 0)
-            ax.set_title(f"{channel} Sv")
-            ax.set_ylabel("Depth (m)")
-            ax.set_xlabel("Ping Time (DD HH:MM)")
-            fig.colorbar(pcolormesh, ax=ax, label="Volume backscattering strength (Sv re 1 m-1) [dB]")
+            # # ax.invert_yaxis()
+            # ax.set_ylim(Y.max(), 0)
+            # ax.set_title(f"{channel} Sv")
+            # ax.set_ylabel("Depth (m)")
+            # ax.set_xlabel("Ping Time (DD HH:MM)")
+            # fig.colorbar(pcolormesh, ax=ax, label="Volume backscattering strength (Sv re 1 m-1) [dB]")
 
-            plt.savefig(os.path.join(processed_directory, f'{file}_{channel}_echogram.png'), dpi=300, bbox_inches='tight')
-            plt.close(fig)
+            # plt.savefig(os.path.join(processed_directory, f'{file}_{channel}_echogram.png'), dpi=300, bbox_inches='tight')
+            # plt.close(fig)
 
             # ---------------- Depth-binning Sv ----------------
             depth = ds_sv_clean["echo_range"].sel(channel=channel)
