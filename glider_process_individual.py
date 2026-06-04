@@ -27,7 +27,7 @@ def main():
 
     print("Starting glider AZFP processing...")
 
-    glider_data = r"C:\Users\marqjace\data\azfp\WA_202405211549-deployment_osu592_pass3.mat"
+    glider_data = r"C:\Users\marqjace\data\azfp\WA_202305241820-deployment_osu592_pass3.mat"
     raw_data_directory = r"C:\Users\marqjace\data\azfp\to_process"
     xml_file = r"C:\Users\marqjace\data\azfp\tweaked.xml"
 
@@ -103,16 +103,9 @@ def main():
     for i, ds in enumerate(ed_list):
         print(f'Processing file: ({i+1}/{len(ed_list)})')
         file = os.path.basename(ds.provenance.source_filenames.values[0])
-
-        # Interpolate glider data
-        # ping_time = ds.environment.time1.values.astype(float)
-        # print(ds.environment)
-        # print(ds.platform)
-        # print(ds.provenance)
-        # print(ds.sonar)
-        # print(ds.sonar.Beam_group1)
     
-        ping_time = ds.sonar.Beam_group1.ping_time.values.astype(float)
+        ping_time = ds.sonar.Beam_group1.ping_time.values.astype(float)   # 2023
+        # ping_time = ds.sonar.Beam_group1.ping_time.values.astype(float)   # 2024
         t = np.interp(ping_time, glider_time_valid, temperature_valid)
         s = np.interp(ping_time, glider_time_valid, salinity_valid)
         d = np.interp(ping_time, glider_time_valid, depth_valid)
