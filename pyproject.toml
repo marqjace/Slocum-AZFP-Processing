@@ -3,11 +3,12 @@ name = "slocum-azfp-processing"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "cmocean>=4.0.3",
     "echopype>=0.8.4",
     "h5netcdf>=1.8.1",
+    "h5py>=3.0.0",
     "matplotlib>=3.9.4",
     "numpy>=2.0.2",
     "pandas>=2.3.3",

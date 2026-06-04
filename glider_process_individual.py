@@ -4,7 +4,7 @@ import pandas as pd
 import xarray as xr
 import echopype as ep
 from pathlib import Path
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from utils.convert_raw import convert_raw
 from utils.convert_mat_to_netcdf import convert_mat_to_netcdf
@@ -17,7 +17,7 @@ def main():
     This function takes the converted and calibrated echogram data from the glider AZFP, processes it, and generates echograms.
     It also saves the echograms as PNG files in the specified figures directory within '/processed'.
 
-    :param data_directory: str, path to the directory containing the raw echogram data files
+    :param raw_data_directory: str, path to the directory containing the raw echogram data files
     :param proc_data_directory: str, path to the directory where the converted netCDF files will be saved
     :param xml_file: str, path to the XML file containing the sonar configuration
     :param glider_data: matlab file
@@ -25,16 +25,18 @@ def main():
     :return: Saved echograms as PNG files in the figures directory
     """
 
-    glider_data = r"C:\Users\marqjace\azfp\2023_deployment\processing\WA_202305241820-deployment_osu592_pass3.mat"
-    raw_data_directory = r"C:\Users\marqjace\azfp\2023_deployment\processing\to_process"
-    xml_file = 'tweaked.xml'
+    print("Starting glider AZFP processing...")
+
+    glider_data = r"C:\Users\marqjace\data\azfp\WA_202405211549-deployment_osu592_pass3.mat"
+    raw_data_directory = r"C:\Users\marqjace\data\azfp\to_process"
+    xml_file = r"C:\Users\marqjace\data\azfp\tweaked.xml"
 
 
     ############################ Glider Data Processing ############################
 
     # Convert the .mat glider data file to a netCDF file
-    convert_mat_to_netcdf(glider_data)
     print('Converting the glider data from MatLab to NetCDF....')
+    convert_mat_to_netcdf(glider_data)
 
     directory = Path(glider_data).parent
     filename = Path(glider_data).name
@@ -89,8 +91,8 @@ def main():
     ############################ AZFP Data Processing ############################
 
     # Load the AZFP data
-    ed_list, proc_data_directory = convert_raw(data_directory, xml_file)
     print('Processing raw AZFP files....')
+    ed_list, proc_data_directory = convert_raw(raw_data_directory, xml_file)
     
     processed_directory = os.path.join(proc_data_directory, 'proc')
     if not os.path.isdir(processed_directory):
@@ -103,7 +105,14 @@ def main():
         file = os.path.basename(ds.provenance.source_filenames.values[0])
 
         # Interpolate glider data
-        ping_time = ds.environment.time1.values.astype(float)
+        # ping_time = ds.environment.time1.values.astype(float)
+        # print(ds.environment)
+        # print(ds.platform)
+        # print(ds.provenance)
+        # print(ds.sonar)
+        # print(ds.sonar.Beam_group1)
+    
+        ping_time = ds.sonar.Beam_group1.ping_time.values.astype(float)
         t = np.interp(ping_time, glider_time_valid, temperature_valid)
         s = np.interp(ping_time, glider_time_valid, salinity_valid)
         d = np.interp(ping_time, glider_time_valid, depth_valid)
@@ -140,6 +149,16 @@ def main():
         # Mask the glider time to AZFP time range
         mask = ~np.isnan(depth_valid) & ~np.isnan(glider_dt) & (glider_dt >= start_julday) & (glider_dt <= end_julday)
         glider_dt_masked = glider_dt[mask]
+        
+        # Check if there's any overlap between glider and AZFP time ranges
+        if len(glider_dt_masked) == 0:
+            print(f"WARNING: No time overlap between glider data and AZFP file {file}")
+            print(f"  AZFP time range: {start_julday} to {end_julday}")
+            print(f"  Glider time range: {glider_dt.min()} to {glider_dt.max()}")
+            print(f"  Skipping this file...\n")
+            ds_sv_clean.close()
+            continue
+        
         depth_masked = depth_valid[mask]
         bottom_depth_masked = bottom_depth_valid[mask]
         temperature_masked = temperature_valid[mask]
@@ -209,39 +228,39 @@ def main():
             climb_mask = depth_derivative < 0
             sv = sv.where(~climb_mask)
 
-            # # ---------------- Uncomment to Plot Individual Dive Echograms ----------------
-            # echo_range = ds_sv_clean["echo_range"].sel(channel=channel)
-            # C = sv.values.T  # shape (M, N)
-            # Y = echo_range.transpose("range_sample", "ping_time").values  # (M, N)
-            # X = np.broadcast_to(sv['ping_time'].values.reshape(1, -1), C.shape)  # (M, N)
+            # ---------------- Uncomment to Plot Individual Dive Echograms ----------------
+            echo_range = ds_sv_clean["echo_range"].sel(channel=channel)
+            C = sv.values.T  # shape (M, N)
+            Y = echo_range.transpose("range_sample", "ping_time").values  # (M, N)
+            X = np.broadcast_to(sv['ping_time'].values.reshape(1, -1), C.shape)  # (M, N)
 
-            # fig, ax = plt.subplots(figsize=(12, 6))
+            fig, ax = plt.subplots(figsize=(12, 6))
 
-            # pcolormesh = ax.pcolormesh(
-            #     X,
-            #     Y,
-            #     C,
-            #     shading='auto',
-            #     vmin=-100,
-            #     vmax=-60,
-            #     cmap='jet',
-            # )
+            pcolormesh = ax.pcolormesh(
+                X,
+                Y,
+                C,
+                shading='auto',
+                vmin=-100,
+                vmax=-60,
+                cmap='jet',
+            )
 
-            # ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-            # ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %H:%M'))
+            ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %H:%M'))
 
-            # # Rotate labels for readability
-            # fig.autofmt_xdate(rotation=30, ha='right')
+            # Rotate labels for readability
+            fig.autofmt_xdate(rotation=30, ha='right')
 
-            # # ax.invert_yaxis()
-            # ax.set_ylim(Y.max(), 0)
-            # ax.set_title(f"{channel} Sv")
-            # ax.set_ylabel("Depth (m)")
-            # ax.set_xlabel("Ping Time (DD HH:MM)")
-            # fig.colorbar(pcolormesh, ax=ax, label="Volume backscattering strength (Sv re 1 m-1) [dB]")
+            # ax.invert_yaxis()
+            ax.set_ylim(Y.max(), 0)
+            ax.set_title(f"{channel} Sv")
+            ax.set_ylabel("Depth (m)")
+            ax.set_xlabel("Ping Time (DD HH:MM)")
+            fig.colorbar(pcolormesh, ax=ax, label="Volume backscattering strength (Sv re 1 m-1) [dB]")
 
-            # plt.savefig(os.path.join(processed_directory, f'{file}_{channel}_echogram.png'), dpi=300, bbox_inches='tight')
-            # plt.close(fig)
+            plt.savefig(os.path.join(processed_directory, f'{file}_{channel}_echogram.png'), dpi=300, bbox_inches='tight')
+            plt.close(fig)
 
             # ---------------- Depth-binning Sv ----------------
             depth = ds_sv_clean["echo_range"].sel(channel=channel)
