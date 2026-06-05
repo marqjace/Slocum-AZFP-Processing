@@ -81,7 +81,7 @@ def convert_raw(raw_data_directory, xml_file):
     file_list = glob.glob(os.path.join(raw_data_directory, '*.01?'))
     file_list.sort()
 
-    parent_path = os.path.dirname(raw_data_directory)
+    parent_path = os.path.dirname(os.path.normpath(raw_data_directory))
     proc_data_directory = os.path.join(parent_path, 'processed')
     os.makedirs(proc_data_directory, exist_ok=True)
 

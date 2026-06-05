@@ -1,3 +1,4 @@
+import argparse
 import glob
 import os
 import matplotlib.pyplot as plt
@@ -8,6 +9,46 @@ from dask.diagnostics import ProgressBar
 
 import warnings
 warnings.filterwarnings('ignore')
+
+
+def parse_transect_line(value):
+    if value is None:
+        return None
+
+    normalized = str(value).strip().lower()
+    if normalized in {"none", "all", "complete", "complete_mission"}:
+        return None
+
+    try:
+        parsed = int(normalized)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "transect_line must be None or an integer from 1 to 6"
+        ) from exc
+
+    if parsed not in {1, 2, 3, 4, 5, 6}:
+        raise argparse.ArgumentTypeError(
+            "transect_line must be None or an integer from 1 to 6"
+        )
+
+    return parsed
+
+
+def build_cli_parser():
+    parser = argparse.ArgumentParser(
+        description="Merge AZFP profile files and generate transect plots."
+    )
+    parser.add_argument(
+        "proc_data_directory",
+        help="Path containing *_profiles.nc files"
+    )
+    parser.add_argument(
+        "--transect-line",
+        type=parse_transect_line,
+        default=None,
+        help="Use None (default) for complete mission, or 1-6 for a line"
+    )
+    return parser
 
 def merge_glider_azfp_dataset(proc_data_directory, transect_line=None):
     figures_directory = os.path.join(proc_data_directory, 'figures/')
@@ -182,6 +223,14 @@ def merge_glider_azfp_dataset(proc_data_directory, transect_line=None):
     print("Done!")
 
 
-proc_data_directory = r"C:\Users\marqjace\data\azfp\processed\proc"
+def main():
+    parser = build_cli_parser()
+    args = parser.parse_args()
+    merge_glider_azfp_dataset(
+        proc_data_directory=args.proc_data_directory,
+        transect_line=args.transect_line
+    )
 
-merge_glider_azfp_dataset(proc_data_directory)
+
+if __name__ == "__main__":
+    main()

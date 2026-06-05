@@ -1,3 +1,4 @@
+import argparse
 import os
 import numpy as np
 import pandas as pd
@@ -12,7 +13,26 @@ from utils.convert_mat_to_netcdf import convert_mat_to_netcdf
 import warnings
 warnings.filterwarnings('ignore')
 
-def main():
+def build_cli_parser():
+    parser = argparse.ArgumentParser(
+        description="Process individual glider and AZFP files into depth-binned profiles."
+    )
+    parser.add_argument(
+        "glider_data",
+        help="Path to the source glider .mat file"
+    )
+    parser.add_argument(
+        "raw_data_directory",
+        help="Directory containing raw AZFP files"
+    )
+    parser.add_argument(
+        "xml_file",
+        help="Path to AZFP XML configuration file"
+    )
+    return parser
+
+
+def main(glider_data, raw_data_directory, xml_file):
     """
     This function takes the converted and calibrated echogram data from the glider AZFP, processes it, and generates echograms.
     It also saves the echograms as PNG files in the specified figures directory within '/processed'.
@@ -26,11 +46,6 @@ def main():
     """
 
     print("Starting glider AZFP processing...")
-
-    glider_data = r"C:\Users\marqjace\data\azfp\WA_202305241820-deployment_osu592_pass3.mat"
-    raw_data_directory = r"C:\Users\marqjace\data\azfp\to_process"
-    xml_file = r"C:\Users\marqjace\data\azfp\tweaked.xml"
-
 
     ############################ Glider Data Processing ############################
 
@@ -357,4 +372,10 @@ def main():
         profiles_ds.close()
 
 if __name__ == "__main__":
-    main()
+    parser = build_cli_parser()
+    args = parser.parse_args()
+    main(
+        glider_data=args.glider_data,
+        raw_data_directory=args.raw_data_directory,
+        xml_file=args.xml_file,
+    )
