@@ -13,12 +13,6 @@ To run: `uv run merge_glider_azfp.py "path_to_processed_data" --transect-line No
 - Edit lines 17-44 for correct transect line dates
 - Select which transect line you want to plot ex: `--transect-line 1`
 
-<!-- ![Line 1 Sv](./img/sv_line_1.png)
-![Line 1 Temperature](./img/temperature_line_1.png)
+![Line 1 Sv](./img/sv_line_1.png)
+<!-- ![Line 1 Temperature](./img/temperature_line_1.png)
 ![Line 1 Oxygen](./img/oxygen_line_1.png) -->
-
-<img src="sv_line_1.png" width="200" height="100">
-
-<img src="temperature_line_1.png" width="200" height="100">
-
-<img src="oxygen_line_1.png" width="200" height="100">
